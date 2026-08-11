@@ -1,0 +1,30 @@
+spring:
+
+  application:
+    name: jira
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/jira}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+
+server:
+  port: 8080
+
+file:
+  upload-dir: ${FILE_UPLOAD_DIR:./uploads}
+
+jwt:
+  secret: "my-super-secret-jwt-key-for-jira-task-manager-2026"
+  expiration: 86400000

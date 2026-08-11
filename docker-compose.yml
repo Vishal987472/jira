@@ -1,0 +1,89 @@
+services:
+
+  postgres:
+    image: postgres:17
+    container_name: jira-postgres
+
+    environment:
+      POSTGRES_DB: jira
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: vishal
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - jira-postgres-data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U postgres -d jira"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+    networks:
+      - jira-network
+
+
+  backend:
+    build:
+      context: ./jira
+      dockerfile: Dockerfile
+
+    container_name: jira-backend
+
+    environment:
+
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/jira
+
+      SPRING_DATASOURCE_USERNAME: postgres
+
+      SPRING_DATASOURCE_PASSWORD: vishal
+
+      FILE_UPLOAD_DIR: /app/uploads
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    volumes:
+      - jira-uploads:/app/uploads
+
+    networks:
+      - jira-network
+
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+    container_name: jira-frontend
+
+    ports:
+      - "5173:80"
+
+    depends_on:
+      - backend
+
+    networks:
+      - jira-network
+
+
+volumes:
+
+  jira-postgres-data:
+
+  jira-uploads:
+
+
+networks:
+
+  jira-network:
